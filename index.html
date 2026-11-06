@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>MIRIK'LA 5 GECE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Creepster&family=Inter:wght@400;900&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{ --red:#c1121f; --bone:#d9d0bd; --dim:#8a8580; --green:#39d353; }
+  body > *:not(#stage):not(script){display:none !important}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none}
+  html,body{margin:0; height:100%; background:#000; overflow:hidden; font-family:'VT323',monospace; color:#fff}
+  #stage{position:absolute; left:50%; top:50%; width:1280px; height:720px; transform-origin:center; background:#0d0b10; overflow:hidden}
+  .screen{position:absolute; inset:0; display:none}
+  .screen.on{display:block}
+  .vignette{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.9) 100%)}
+  .scan{position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 2px, transparent 2px 6px)}
+  button{font-family:'VT323',monospace; cursor:pointer}
+
+  /* TITLE */
+  #faceWrap{position:absolute; right:40px; top:0; width:605px; height:720px; transform-origin:49% 63%; animation:twitch 6s infinite}
+  #faceWrap img{position:absolute; inset:0; width:100%; height:100%}
+  #title .face{opacity:.55; filter:grayscale(.3) contrast(1.1)}
+  #title .scary{opacity:0}
+  #faceWrap .scary{object-fit:cover; object-position:50% 0}
+  #faceWrap .sBody{clip-path:inset(64% 0 0 0)}
+  #faceWrap .sHead{clip-path:inset(0 0 36% 0); transform-origin:47% 64%}
+  #faceWrap.snap{animation:none}
+  #faceWrap.snap .sHead{transform:rotate(-38deg) translate(-4px,10px)}
+  #faceWrap.snap .face{opacity:0} #faceWrap.snap .scary{opacity:1}
+  #title.flash::after{content:''; position:absolute; inset:0; background:rgba(160,0,0,.22); pointer-events:none; z-index:4}
+  #title.flash{animation:shake2 .05s infinite}
+  @keyframes twitch{0%,92%,100%{transform:none; opacity:.55} 93%{transform:translateX(-8px) skewX(4deg); opacity:.8} 95%{transform:translateX(6px); opacity:.3}}
+  #title .fade{position:absolute; inset:0; background:linear-gradient(90deg,#0d0b10 35%,transparent 75%)}
+  #title h1{position:absolute; left:72px; top:96px; margin:0; font-family:'Creepster',cursive; font-weight:400; line-height:.95; letter-spacing:5px}
+  #title h1 .a{display:block; font-size:128px; color:var(--bone)}
+  #title h1 .b{display:block; font-size:168px; color:var(--red); animation:flick 4s infinite}
+  @keyframes flick{0%,96%,100%{opacity:1} 97%{opacity:.2} 98%{opacity:1} 99%{opacity:.4}}
+  #title .sub{position:absolute; left:76px; top:440px; width:580px; font-family:Inter,sans-serif; font-size:21px; line-height:1.45; color:#a39e93}
+  #menu{position:absolute; left:70px; top:530px}
+  #menu button{display:block; background:none; border:0; color:var(--dim); font-size:38px; padding:2px 8px; text-align:left}
+  #menu button:hover,#menu button:focus{color:#fff; outline:none}
+  #menu button:hover::before,#menu button:focus::before{content:'> '}
+  #glitch{position:absolute; inset:0; z-index:50; pointer-events:none; display:none; width:100%; height:100%}
+  #glitch.on{display:block}
+  /* GAZETE */
+  #paper{background:#060504; cursor:pointer}
+  #news{position:absolute; left:50%; top:48%; width:820px; height:650px; transform:translate(-50%,-50%) rotate(-1.6deg); padding:22px 30px; color:#1d1a14; font-family:Georgia,'Times New Roman',serif;
+    background:radial-gradient(ellipse at 80% 90%, rgba(90,60,20,.28), transparent 55%), url(img/paper.png) center/cover, #cfc4a6;
+    box-shadow:0 30px 80px rgba(0,0,0,.9), inset 0 0 90px rgba(80,55,20,.55); filter:sepia(.35) brightness(.92) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1)}
+  @keyframes paperIn{from{transform:translate(-50%,-30%) rotate(-9deg) scale(.7); opacity:0} to{transform:translate(-50%,-50%) rotate(-1.6deg); opacity:1}}
+  #news .mast{font-family:'Times New Roman',serif; font-weight:900; font-size:54px; text-align:center; letter-spacing:2px; border-bottom:3px double #1d1a14; line-height:1}
+  #news .dl{display:flex; justify-content:space-between; font-size:13px; padding:4px 2px; border-bottom:1px solid #1d1a14; font-style:italic}
+  #news h1{font-size:33px; line-height:1.05; margin:12px 0 10px; text-align:center; font-weight:900; text-transform:uppercase}
+  #news .row{display:flex; gap:20px}
+  #news .ph{width:250px; flex:none}
+  #news .ph img{width:250px; height:300px; object-fit:cover; object-position:50% 20%; display:block; filter:contrast(1.05) sepia(.2); border:1px solid #1d1a14; mix-blend-mode:multiply}
+  #news .cap{font-size:12px; font-style:italic; margin-top:4px; line-height:1.25}
+  #news .txt{font-size:15px; line-height:1.38; text-align:justify; column-count:2; column-gap:18px; column-rule:1px solid rgba(29,26,20,.4)}
+  #news .txt p{margin:0 0 7px} #news .txt p:first-child::first-letter{font-size:40px; float:left; line-height:.8; margin:4px 4px 0 0; font-weight:900}
+  #news .bottom{display:flex; gap:16px; margin-top:12px}
+  #news .ad{flex:1.4; border:3px solid #1d1a14; padding:8px 12px; font-size:13.5px; line-height:1.35}
+  #news .ad b.h{display:block; font-size:20px; text-align:center; letter-spacing:1px}
+  #news .mini{flex:1; font-size:12.5px; line-height:1.3; border-top:2px solid #1d1a14; padding-top:5px}
+  #news .mini b{display:block; font-size:13px}
+  #news .stain{position:absolute; right:60px; top:130px; width:120px; height:120px; border-radius:50%; border:10px solid rgba(110,70,30,.18); filter:blur(1.5px); pointer-events:none}
+  #paper .hint{position:absolute; bottom:14px; width:100%; text-align:center; color:#8a8580; font-size:26px; animation:flick 2.4s infinite}
+  #title .foot{position:absolute; right:24px; bottom:12px; color:#5a5560; font-size:20px}
+  #mute{position:absolute; right:20px; top:14px; background:none; border:2px solid #3a3540; color:#8a8580; font-size:24px; padding:2px 12px; border-radius:6px; z-index:5}
+  #mute:hover{color:#fff; border-color:#888}
+  #splash{background:#000; cursor:pointer}
+  #splash .center{gap:6px}
+  #splash .s1{font-family:'Creepster',cursive; font-size:96px; color:var(--red); letter-spacing:4px}
+  #splash .s2{font-size:40px; color:#fff; animation:flick 2.4s infinite}
+  #splash .s3{font-size:26px; color:#5a5560; margin-top:30px}
+
+  /* ROSTER */
+  #roster{background:#0d0b10}
+  #roster h2{position:absolute; left:48px; top:24px; margin:0; font-family:'Creepster',cursive; font-weight:400; font-size:72px; color:var(--red); letter-spacing:3px}
+  #roster .sub{position:absolute; left:52px; top:110px; font-family:Inter,sans-serif; color:#a39e93; font-size:20px}
+  #cards{position:absolute; left:48px; top:150px; display:flex; gap:16px; align-items:stretch}
+  .card{width:224px; background:#17131b; border:2px solid #2e2733; border-radius:12px; padding:14px; font-family:Inter,sans-serif}
+  .card.boss{border-color:var(--red)}
+  .card .pic{height:175px; border-radius:8px; background:#0d0b10 center/contain no-repeat}
+  .card b{display:block; margin-top:10px; font-weight:900; font-size:19px}
+  .card i{display:block; font-style:normal; font-family:'VT323'; color:var(--red); font-size:24px}
+  .card p{margin:4px 0 0; font-size:13.5px; line-height:1.4; color:#b9b3a8}
+  #howto{position:absolute; left:48px; right:48px; bottom:66px; font-family:Inter,sans-serif; font-size:15px; color:#a39e93; line-height:1.5}
+  #howto kbd{font-family:'VT323'; font-size:20px; background:#222; padding:0 6px; border-radius:4px; color:#fff}
+  .back{position:absolute; left:48px; bottom:18px; background:none; border:2px solid #444; color:#fff; font-size:30px; padding:2px 18px; border-radius:6px}
+
+  /* INTRO / SIX / OVER / WIN */
+  .center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+  #intro .t{font-size:110px; line-height:1} #intro .n{font-size:56px; color:var(--dim)} #intro .tip{margin-top:30px; font-family:Inter,sans-serif; font-size:20px; color:#a39e93; max-width:700px}
+  #six .clock{font-size:160px; line-height:1}
+  #six .msg{font-size:44px; color:var(--green); margin-top:10px}
+  .big-btn{margin-top:40px; background:none; border:2px solid #fff; color:#fff; font-size:38px; padding:6px 28px; border-radius:6px}
+  .big-btn:hover{background:#fff; color:#000}
+  #over .t{font-family:'Creepster'; font-size:110px; color:var(--red)} #over .why{font-family:Inter,sans-serif; font-size:22px; color:#a39e93; margin-top:10px; max-width:760px}
+  #win h2{font-family:'Creepster'; font-weight:400; font-size:96px; margin:0; color:var(--bone)}
+  #win p{font-family:Inter,sans-serif; font-size:22px; color:#a39e93; max-width:760px; line-height:1.5}
+  #win .gold{color:#ffdd00; font-family:Inter; font-weight:900; font-size:40px}
+
+  /* GAME / OFFICE */
+  #game{background:#141016}
+  #office{position:absolute; inset:0; transition:filter .2s; overflow:hidden}
+  #fanBlades{position:absolute; left:1228px; top:385px; width:192px; height:192px; animation:fanSpin .28s linear infinite; pointer-events:none}
+  #fanHub{position:absolute; left:1228px; top:385px; width:192px; height:192px; pointer-events:none}
+  @keyframes fanSpin{to{transform:rotate(360deg)}}
+  #game.dark #fanBlades{animation-duration:2.6s; animation-timing-function:cubic-bezier(.1,.6,.4,1); animation-iteration-count:1; animation-fill-mode:forwards}
+  #view{position:absolute; left:0; top:0; width:2000px; height:848px; transform-origin:0 0; will-change:transform}
+  #view .shade{position:absolute; inset:0; pointer-events:none; mix-blend-mode:multiply; background:radial-gradient(ellipse 640px 470px at 740px 520px, rgb(255,214,165) 0%, rgb(190,140,100) 28%, rgb(104,88,82) 58%, rgb(58,52,56) 85%, rgb(40,36,40) 100%)}
+  #game.dark #view .shade{background:rgb(10,9,11)}
+  .edge{position:absolute; top:0; bottom:0; width:60px; pointer-events:none; opacity:0; transition:opacity .3s}
+  #edgeL{left:0; background:linear-gradient(90deg,rgba(255,255,255,.06),transparent)} #edgeR{right:0; background:linear-gradient(-90deg,rgba(255,255,255,.06),transparent)}
+  #tablet{position:absolute; inset:0; z-index:25; display:none; pointer-events:none; transform-origin:50% 100%; background:#0b0b0c; border:28px solid #1c1c1f; border-radius:28px; box-shadow:inset 0 0 0 3px #2c2c30, 0 -10px 40px rgba(0,0,0,.8)}
+  #tablet .screenIn{position:absolute; inset:18px; background:#030503; border-radius:10px}
+  #tablet.up{display:block; animation:tabUp .34s cubic-bezier(.2,.7,.3,1) forwards}
+  #tablet.down{display:block; animation:tabDown .28s cubic-bezier(.6,0,.9,.4) forwards}
+  @keyframes tabUp{from{transform:perspective(900px) translateY(105%) rotateX(38deg)} to{transform:perspective(900px) translateY(0) rotateX(0)}}
+  @keyframes tabDown{from{transform:perspective(900px) translateY(0) rotateX(0)} to{transform:perspective(900px) translateY(105%) rotateX(38deg)}}
+  #boot{position:absolute; inset:0; display:none; align-items:center; justify-content:center; font-size:46px; color:#cfe7cf; letter-spacing:4px; z-index:3; background:rgba(0,0,0,.35)}
+  #cam.booting #boot{display:flex}
+  #cam.booting #static{opacity:1 !important}
+  #office .bg{position:absolute; inset:0; background:url(img/rooms/office.png) 0 0/100% 100% no-repeat}
+  #office .lampglow{position:absolute; left:520px; top:330px; width:480px; height:420px; background:radial-gradient(ellipse, rgba(255,180,90,.16), transparent 70%); mix-blend-mode:screen; pointer-events:none; opacity:var(--lamp,1)}
+  #bulb{position:absolute; left:718px; top:392px; width:96px; height:36px; transform:rotate(-14deg); pointer-events:none; mix-blend-mode:screen; opacity:var(--lamp,1);
+    background:radial-gradient(ellipse 50% 50% at 50% 55%, rgba(255,252,235,1) 0%, rgba(255,226,150,.95) 22%, rgba(255,180,80,.55) 48%, rgba(255,140,40,0) 72%)}
+  #bulbHalo{position:absolute; left:640px; top:330px; width:260px; height:200px; pointer-events:none; mix-blend-mode:screen; opacity:calc(var(--lamp,1) * .55); background:radial-gradient(ellipse 50% 45% at 48% 45%, rgba(255,200,120,.55), rgba(255,170,80,0) 70%)}
+  #game.dark #bulb, #game.dark #bulbHalo{display:none}
+  #wclock{position:absolute; left:973px; top:120px; width:56px; height:56px; pointer-events:none}
+  #wclock .face{position:absolute; inset:2px; border-radius:50%; background:radial-gradient(circle, rgb(141,142,134) 0%, rgb(131,132,124) 70%, rgba(126,127,119,0) 100%)}
+  #wclock .hh,#wclock .mh{position:absolute; left:50%; bottom:50%; transform-origin:50% 100%; background:#1b1b1b; border-radius:2px}
+  #wclock .hh{width:3.5px; height:15px; margin-left:-1.75px} #wclock .mh{width:2.2px; height:23px; margin-left:-1.1px}
+  #wclock .cap{position:absolute; left:50%; top:50%; width:5px; height:5px; margin:-2.5px; border-radius:50%; background:#111}
+  #dclock{position:absolute; left:1392px; top:560px; width:132px; height:96px; transform:rotate(-4deg); pointer-events:none; filter:brightness(.55) sepia(.2)}
+  #dclock img{width:100%; height:100%; display:block}
+  #dclock .disp{position:absolute; left:26.55%; top:42.61%; width:56.08%; height:27.36%; background:#140404; display:flex; align-items:center; justify-content:center; font-size:23px; letter-spacing:1px; color:#ff2a1a; text-shadow:0 0 6px #ff2a1a, 0 0 14px rgba(255,40,20,.6); filter:brightness(1.9)}
+  #dclock .disp small{position:absolute; right:3px; top:1px; font-size:8px; letter-spacing:0; text-shadow:none}
+  #dclock .disp i{position:absolute; left:3px; top:4px; width:3px; height:3px; border-radius:50%; background:#ff2a1a; box-shadow:0 0 4px #ff2a1a}
+  #dcGlow{position:absolute; left:1400px; top:580px; width:120px; height:80px; pointer-events:none; mix-blend-mode:screen; background:radial-gradient(ellipse, rgba(255,40,20,.18), transparent 70%)}
+  #game.dark #dclock .disp, #game.dark #dcGlow{opacity:0}
+  #postit{position:absolute; left:897px; top:579px; width:44px; height:44px; padding:3px 2px; font-family:'Caveat',cursive; font-size:8.5px; line-height:.95; color:#2a2a7a; transform:rotate(-3deg); pointer-events:none; opacity:.85}
+  #view .flk{position:absolute; inset:0; pointer-events:none; background:#050406; opacity:calc((1 - var(--lamp,1)) * .62)}
+  #game.dark #office .lampglow{display:none}
+  @keyframes lampFlick{0%,90%,100%{opacity:1} 91%{opacity:.3} 93%{opacity:1} 95%{opacity:.5}}
+  .doorway{position:absolute; background:transparent; overflow:hidden}
+  #dwL{left:292px; top:60px; width:180px; height:742px; clip-path:polygon(1.7% 0.3%, 100% 12.1%, 100% 98.6%, 1.7% 100%)}
+  #dwR{left:1560px; top:38px; width:178px; height:764px; clip-path:polygon(1% 14.4%, 98% 0.3%, 98% 99.7%, 1% 98.4%)}
+  .doorway .plane{position:absolute; top:-4%; bottom:-4%; width:175%; overflow:hidden}
+  #dwL .plane{left:0; transform-origin:0 50%; transform:perspective(520px) rotateY(30deg)}
+  #dwR .plane{right:0; transform-origin:100% 50%; transform:perspective(520px) rotateY(-30deg)}
+  #dwL .who{transform:translateX(-50%) perspective(900px) rotateY(8deg)} #dwR .who{transform:translateX(-50%) perspective(900px) rotateY(-8deg)}
+  .doorway .light{position:absolute; inset:0; opacity:0; pointer-events:none; background:radial-gradient(ellipse 85% 48% at 50% 34%, rgba(255,228,175,.34), rgba(255,214,150,.12) 55%, rgba(0,0,0,0) 78%), radial-gradient(ellipse 90% 14% at 50% 97%, rgba(255,214,150,.22), rgba(0,0,0,0) 75%)}
+  .doorway.lit .light{animation:lightOn .32s steps(1) forwards}
+  @keyframes lightOn{0%{opacity:.85} 12%{opacity:.15} 24%{opacity:1} 40%{opacity:.35} 55%{opacity:1} 100%{opacity:1}}
+  .doorway .who{position:absolute; bottom:0; left:50%; transform:translateX(-50%); height:560px; max-width:none; display:none; filter:brightness(.75) sepia(.3) contrast(1.08) drop-shadow(0 0 30px rgba(0,0,0,.9))}
+  .doorway.lit .who.here{display:block}
+  .doorway .shutter{position:absolute; left:0; right:0; top:0; height:100%; background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.1) 30%,rgba(0,0,0,.25)), url(img/door.png) center bottom/auto 100% no-repeat; filter:brightness(.26) saturate(.8); transform:translateY(-102%); transition:transform .34s cubic-bezier(.5,0,.9,.6), filter .15s; border-bottom:6px solid #1c1712; box-shadow:0 10px 18px rgba(0,0,0,.8)}
+  .doorway .light{z-index:0} .doorway .plane{z-index:2}
+  .doorway .who, .doorway .light{transition:visibility 0s 0s} .doorway.closed .who, .doorway.closed .light{visibility:hidden; transition:visibility 0s .3s}
+  .doorway.lit .shutter::after{content:''; position:absolute; inset:0; background:radial-gradient(ellipse 80% 45% at 50% 32%, rgba(255,220,160,.22), transparent 70%)}
+  .doorway.closed .shutter{transition:transform .26s cubic-bezier(.6,0,1,.5)}
+  .doorway.closed .shutter{transform:none}
+  .panel{position:absolute; top:350px; width:130px; height:233px; cursor:pointer}
+  .panel::before{content:''; position:absolute; inset:0; background:url(img/panel.png) 0 0/100% 100%; filter:brightness(.5) sepia(.15); box-shadow:0 6px 14px rgba(0,0,0,.7)}
+  #pL{left:95px} #pR{left:1775px}
+  .pbtn{position:absolute; left:42px; width:46px; height:46px; border-radius:50%; cursor:pointer; transition:box-shadow .08s, background .08s}
+  .pbtn.door{top:41px} .pbtn.lamp{top:128px}
+  .pbtn:active{transform:scale(.94)}
+  .pbtn.door.on{background:radial-gradient(circle, rgba(255,90,80,.95), rgba(230,20,20,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(255,40,40,.55)}
+  .pbtn.lamp.on{background:radial-gradient(circle, rgba(255,250,225,.95), rgba(255,235,170,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(255,240,190,.5)}
+  .panel span{position:absolute; left:0; right:0; text-align:center; font-size:15px; letter-spacing:2px; color:#1c1814; text-shadow:0 1px 0 rgba(255,255,255,.25); pointer-events:none}
+  .panel span.l1{top:96px} .panel span.l2{top:181px}
+  #monitor{position:absolute; left:903px; top:395px; width:200px; height:162px; background:radial-gradient(ellipse,#0b1a0e,#030604); border-radius:12px/16px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#39d353; font-size:26px; line-height:1.05; text-align:center; box-shadow:inset 0 0 26px rgba(0,0,0,.9), 0 0 50px rgba(57,211,83,.14); overflow:hidden}
+  #monitor::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px); pointer-events:none}
+  #monitor .idle{color:#2a7a3a; font-size:22px}
+  #monitor.alert{animation:alarm .5s steps(2) infinite}
+  @keyframes alarm{50%{box-shadow:inset 0 0 22px rgba(0,0,0,.9), 0 0 30px rgba(255,42,58,.7)}}
+  #monitor .mbtns{display:flex; gap:6px; margin-top:6px; position:relative; z-index:2}
+  #monitor .mbtns button{font-size:20px; padding:1px 5px; border:1px solid; background:rgba(0,0,0,.5); border-radius:3px}
+  #accept{color:#39d353} #decline{color:#ff5a5a}
+  #mtimer{font-size:19px; color:#ff5a5a; margin-top:3px}
+  #hud{text-shadow:0 2px 6px #000}
+  #hud .time{display:none}
+  #hud .night{position:absolute; left:40px; z-index:1; top:562px; font-size:32px; color:var(--dim)}
+  #hud .power{position:absolute; left:40px; top:600px; font-size:40px}
+  #hud .usage{position:absolute; left:40px; top:646px; font-size:32px; display:flex; align-items:center; gap:8px}
+  #hud .usage i{display:inline-block; width:22px; height:26px}
+  #camTab{position:absolute; left:440px; top:676px; width:400px; height:40px; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.5); border-radius:4px; color:#fff; font-size:30px}
+  #camTab:hover{background:rgba(255,255,255,.2)}
+  #dark{position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity 1s}
+  #powerFace{position:absolute; left:300px; top:200px; height:560px; opacity:0; pointer-events:none}
+
+  /* CAMERA */
+  #cam{position:absolute; inset:0; display:none; z-index:20; overflow:hidden; background:#0a0806}
+  #cam.on{display:block}
+  #bezel{position:absolute; inset:0; background:#0a0806 url(img/monitor.png) -23px -13px/1320px 737px no-repeat; filter:brightness(calc(.32 + .5 * var(--lamp,1))) contrast(1.05)}
+  #screenWrap{position:absolute; left:320px; top:83px; width:808px; height:632px; transform:scale(.792); transform-origin:0 0}
+  #monPower{position:absolute; left:853px; top:652px; width:46px; height:46px; border-radius:6px; cursor:pointer; z-index:5}
+  #monPower:hover{box-shadow:0 0 14px 3px rgba(125,255,138,.5); background:rgba(125,255,138,.08)}
+  #monLed{position:absolute; left:802px; top:672px; width:6px; height:6px; border-radius:50%; background:#5dff7a; box-shadow:0 0 8px #5dff7a; z-index:5}
+  #camPostit{position:absolute; left:302px; top:648px; width:140px; transform:rotate(-2.5deg); font-family:'Caveat',cursive; font-size:19px; line-height:.95; color:#22226e; z-index:5; pointer-events:none; filter:brightness(calc(.45 + .5 * var(--lamp,1)))}
+  #screen{filter:url(#crtBulge)}
+  #cam.enter{animation:camEnter .24s ease-out}
+  #cam.leave{animation:camLeave .2s ease-in forwards}
+  @keyframes camEnter{from{opacity:0; transform:scale(1.07)} to{opacity:1; transform:none}}
+  @keyframes camLeave{from{opacity:1; transform:none} to{opacity:0; transform:scale(1.07)}}
+  #screen{position:absolute; left:0; top:0; width:808px; height:632px; border-radius:28px/24px; overflow:hidden; background:#020502; color:#7dff8a; text-shadow:0 0 6px rgba(80,255,120,.55), 1px 0 rgba(255,60,60,.25), -1px 0 rgba(60,140,255,.25)}
+  #screen .glass{position:absolute; inset:0; pointer-events:none; border-radius:inherit; background:radial-gradient(ellipse at 30% 18%, rgba(255,255,255,.08), transparent 40%), radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.75) 100%); box-shadow:inset 0 0 60px rgba(0,0,0,.9)}
+  #screen .scan{position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px); z-index:5}
+  #screen .rollbar{position:absolute; left:0; right:0; height:120px; top:-120px; pointer-events:none; background:linear-gradient(transparent, rgba(160,255,170,.06), transparent); animation:roll 5.5s linear infinite; z-index:5}
+  @keyframes roll{to{top:110%}}
+  @keyframes crtOn{0%{transform:scale(1,.004); filter:brightness(4)} 35%{transform:scale(1,.004); filter:brightness(4)} 70%{transform:scale(1,1.02); filter:brightness(1.6)} 100%{transform:none; filter:none}}
+  @keyframes crtOff{0%{transform:none; filter:none} 55%{transform:scale(1,.004); filter:brightness(4)} 100%{transform:scale(0,.004); filter:brightness(6)}}
+  #osTop{position:absolute; left:0; right:0; top:0; height:28px; padding:0 20px; display:flex; justify-content:space-between; align-items:center; font-size:20px; background:rgba(40,120,50,.18); border-bottom:1px solid rgba(125,255,138,.35)}
+  #feedWin{position:absolute; left:10px; top:34px; width:788px; height:468px; border:1px solid rgba(125,255,138,.55)}
+  #feedWin .wtitle{height:24px; padding:0 10px; display:flex; justify-content:space-between; align-items:center; font-size:20px; background:rgba(125,255,138,.14); border-bottom:1px solid rgba(125,255,138,.35)}
+  #feedBox{position:relative; width:786px; height:442px; overflow:hidden; background:#000}
+  #feed{position:absolute; left:0; top:0; width:1280px; height:720px; transform:scale(.614); transform-origin:0 0; filter:contrast(1.12) brightness(.95)}
+  #stamp{position:absolute; left:10px; bottom:6px; font-size:18px; color:#e8ffe8; opacity:.85}
+  #side{position:absolute; left:584px; top:322px; width:348px; height:286px; transform:scale(.6); transform-origin:0 0; z-index:3}
+  #log{position:absolute; left:10px; top:508px; width:788px; height:58px; border:1px solid rgba(125,255,138,.55); padding:4px 10px 4px 134px; overflow:hidden; display:flex; align-items:center}
+  #log .mt{position:absolute; left:0; top:0; bottom:0; width:122px; padding-left:10px; line-height:56px; font-size:20px; background:rgba(125,255,138,.14); border-right:1px solid rgba(125,255,138,.35)}
+  #camNote{font-size:20px; line-height:1.15}
+  #camNote::before{content:'> '} #camNote::after{content:'█'; animation:flick 1s steps(2) infinite}
+  #osBottom{position:absolute; left:10px; right:10px; top:572px; height:34px; display:flex; gap:18px; align-items:center; font-size:20px}
+  #osBottom #camClose{margin-left:auto}
+  #boot{position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center; font-size:32px; line-height:1.25; z-index:4; background:rgba(0,10,0,.55)}
+  #boot .cur{animation:flick .6s steps(2) infinite}
+  #static{transition:opacity .5s}
+  .room{position:absolute; inset:0; background:#000 center/cover no-repeat; animation:camPan 14s ease-in-out infinite alternate}
+  @keyframes camPan{from{transform:scale(1.06) translateX(-14px)} to{transform:scale(1.06) translateX(14px)}}
+  .room .floor{position:absolute; left:0; right:0; bottom:0; height:160px; background:#121712}
+  .room .lamp{position:absolute; left:600px; top:30px; width:80px; height:20px; background:#c8e6c9; opacity:.25}
+  .room .label{position:absolute; left:50%; top:150px; transform:translateX(-50%); font-size:120px; color:rgba(200,255,200,.04)}
+  .cimg{position:absolute; max-width:none; -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 97%); mask-image:linear-gradient(to bottom,#000 55%,transparent 97%); opacity:.92}
+  #static{position:absolute; inset:0; width:100%; height:100%; opacity:.12; pointer-events:none}
+  #cam .tint{position:absolute; inset:0; background:rgba(58,90,58,.16); pointer-events:none}
+  #cam .rec{display:flex; align-items:center; gap:8px; color:#ff6b6b; text-shadow:0 0 6px rgba(255,60,60,.7)}
+  #cam .rec i{width:14px; height:14px; border-radius:50%; background:#ff2b2b; animation:flick 1.5s steps(2) infinite}
+  #map{position:absolute; left:0; top:0; width:348px; height:286px; border:1px solid rgba(125,255,138,.7); background:rgba(0,12,2,.86); background-image:linear-gradient(rgba(125,255,138,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(125,255,138,.05) 1px, transparent 1px); background-size:16px 16px}
+  #map .mt{position:absolute; left:0; right:0; top:0; height:26px; padding-left:10px; line-height:26px; font-size:22px; background:rgba(125,255,138,.14); border-bottom:1px solid rgba(125,255,138,.35)}
+  #map button{position:absolute; width:64px; height:36px; background:rgba(0,20,0,.8); color:#7dff8a; border:1px solid #7dff8a; border-radius:0; font-size:22px; text-shadow:inherit}
+  #map button.sel{background:#7dff8a; color:#021; animation:selBlink 1s steps(2) infinite}
+  @keyframes selBlink{50%{background:#3a8a45}}
+  #map .plan{position:absolute; left:0; top:0; pointer-events:none}
+  #map .plan .wall{fill:none; stroke:rgba(125,255,138,.35); stroke-width:1.5; stroke-dasharray:6 3}
+  #map .plan .cor-o{fill:none; stroke:rgba(125,255,138,.6); stroke-width:12; stroke-linejoin:miter}
+  #map .plan .cor-i{fill:none; stroke:#031006; stroke-width:8.5; stroke-linejoin:miter}
+  #map .plan .door{fill:#7dff8a; font-family:'VT323',monospace; font-size:13px; opacity:.75}
+  #map .you{position:absolute; left:142px; top:238px; width:64px; height:36px; border:1px dashed #7dff8a; color:#7dff8a; font-size:22px; display:flex; align-items:center; justify-content:center}
+  #camClose{background:rgba(125,255,138,.1); border:1px solid #7dff8a; color:#7dff8a; font-size:20px; padding:2px 14px; text-shadow:inherit}
+  #camClose:hover{background:#7dff8a; color:#021}
+
+  /* SCARE */
+  #scare{background:#000}
+  #scareBg{position:absolute; inset:-40px; background:#000 center/cover no-repeat; filter:blur(22px) brightness(.45) saturate(1.2)}
+  #scareWrap{position:absolute; left:50%; top:50%; height:100%; transform:translate(-50%,-50%); animation:lunge .55s cubic-bezier(.15,.9,.3,1) forwards}
+  #scareImg{display:block; height:100%; animation:shake .06s infinite; box-shadow:0 0 80px 40px rgba(0,0,0,.85)}
+  #scareImg.cut{box-shadow:none}
+  @keyframes lunge{from{transform:translate(-50%,-50%) scale(.55)} to{transform:translate(-50%,-48%) scale(1.32)}}
+  @keyframes shake{0%{transform:translate(-6px,4px)} 50%{transform:translate(5px,-5px)} 100%{transform:translate(-3px,-2px)}}
+  #scare .flash{position:absolute; inset:0; background:var(--red); opacity:.3; animation:flash .1s steps(2) infinite}
+  @keyframes flash{50%{opacity:0}}
+  #scare .t1{position:absolute; top:30px; width:100%; text-align:center; font-family:Inter; font-weight:900; font-size:96px; text-shadow:0 0 20px #000}
+  #scare .t2{position:absolute; bottom:40px; width:100%; text-align:center; font-family:Inter; font-weight:900; font-size:140px; color:#ffdd00; text-shadow:0 0 30px #000}
+  .shakeAll{animation:shake2 .08s infinite}
+  @keyframes shake2{50%{transform:translate(4px,-3px)}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="crtBulge" x="0" y="0" width="808" height="632" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="data:image/png;base64,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" x="0" y="0" width="808" height="632" preserveAspectRatio="none" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="90" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<div id="stage">
+  <canvas id="glitch" width="320" height="180"></canvas>
+  <button id="mute">🔊 SES</button>
+
+  <!-- TITLE -->
+  
+
+  <section id="splash" class="screen on"><div class="center"><div class="s1">MIRIK'LA 5 GECE</div><div class="s2" id="splashTxt">YÜKLENİYOR... %0</div><div class="s3">🎧 kulaklıkla, ışıklar kapalı oyna</div></div></section>
+
+  <section id="title" class="screen">
+    <div id="faceWrap"><img class="face" src="img/gece.png" alt=""><img class="scary sBody" src="img/gece_scary.png" alt=""><img class="scary sHead" src="img/gece_scary.png" alt=""></div>
+    <div class="fade"></div>
+    <div class="vignette"></div><div class="scan"></div>
+    <h1><span class="a">MIRIK'LA</span><span class="b">5 GECE</span></h1>
+    <div class="sub">Sınava 5 gece kala. Koridorda Mırık'lar dolaşıyor.<br>Kapıyı kapat. Elektriği idareli kullan. Asla gülme.</div>
+    <div id="menu">
+      <button id="bNew">YENİ OYUN</button>
+      <button id="bCont">DEVAM ET — 1. GECE</button>
+      <button id="bRoster">MIRIK'LARI TANI</button>
+    </div>
+    
+    <div class="foot">v1.0 · 3-4-5 Yayınları ile hiçbir ilgisi yoktur</div>
+  </section>
+
+  <!-- ROSTER -->
+  <section id="roster" class="screen">
+    <div class="vignette"></div>
+    <h2>MIRIK'LARI TANI</h2>
+    <div class="sub">Onları tanırsan sabahı görürsün. Tanımazsan... pasta.</div>
+    <div id="cards"></div>
+    <div id="howto"><b>Nasıl oynanır:</b> 12 AM'den 6 AM'e kadar hayatta kal. Kapılar ve ışıklar elektrik yer, elektrik biterse yandın.
+      Kapıda birini görürsen kapıyı kapat. Kameraları izle ama monitörünü de unutma.<br>
+      Klavye: <kbd>Q</kbd> sol kapı · <kbd>A</kbd> sol ışık · <kbd>E</kbd> sağ kapı · <kbd>D</kbd> sağ ışık · <kbd>BOŞLUK</kbd> kamera · <kbd>←</kbd><kbd>→</kbd> ya da fareyi kenara götür: etrafına bak (telefonda kaydır)<br><span style="font-size:12px;opacity:.6">Kapı ve düğme sesleri: "Oculus Audio Pack 01" — Oculus VR, LLC (CC BY 4.0)</span></div>
+    <button class="back" id="bBack">← GERİ</button>
+  </section>
+
+  <!-- INTRO -->
+  <section id="paper" class="screen">
+    <div id="news"><div class="stain"></div>
+      <div class="mast">SAMSUN GECE POSTASI</div>
+      <div class="dl"><span>6 Kasım 1998 · Cuma</span><span>Yıl: 13 · Sayı: 345</span><span>Fiyatı: 50.000 TL</span></div>
+      <h1>Birey Koleji'nde Tuhaf Geceler</h1>
+      <div class="row">
+        <div class="ph"><img src="img/news.png" alt=""><div class="cap">Hasan Emre M., ortadan kaybolmadan önce çekilen son fotoğrafında. Ailesi: "Kitapta değildi."</div></div>
+        <div class="txt">
+          <p>Sınava sadece beş gece kala, Birey Koleji'nin gece etütlerinde açıklanamayan olaylar yaşanıyor. Görevliler, güvenlik kameralarında elinde pasta tabağıyla dolaşan bir öğrenci, koridorda bekleyen takım elbiseli bir avukat ve sahilde sırtı dönük duran bir siluet gördüklerini söylüyor.</p>
+          <p>Olaylar, kolejin "en çalışkan" öğrencisi Hasan Emre M.'nin bir gece kantinde "Kitapta mı?" diye sorup kendi kendine dakikalarca gülmesinin ardından başladı. O geceden beri kimse onu ders çalışırken görmedi.</p>
+          <p>Etüt odasında bulunan deneme kitaplarının sayfalarında yalnızca tek bir kelimenin tekrar tekrar yazıldığı tespit edildi: "PASTAYMIŞ". Kolej yönetimi açıklama yapmadı. Avukatlar ise basının sorularına yalnızca "Dört, beş, altı." diye yanıt verdi.</p>
+          <p>Bölge sakinleri, gece yarısından sonra kürklü bir "padişahın" Pulse 200 marka bir motosikletle koridorlarda dolaştığını iddia ediyor.</p>
+        </div>
+      </div>
+      <div class="bottom">
+        <div class="ad"><b class="h">ACİL — GECE ETÜT GÖREVLİSİ ARANIYOR</b>Mesai: 00:00 – 06:00 · Görevler: kameraları izlemek, kapıları kilitlemek, elektriği idareli kullanmak. Maaş: 1 adet 3-4-5 deneme seti. <b>DİKKAT:</b> Kantindeki pastaya dokunmayın. Arda ile LoL oynamayın. Işığı yaktığınızda kapıda biri varsa, kapıyı KAPATIN. Başvuru: Bu gece, saat 12'de.</div>
+        <div class="mini"><b>SPOR</b>Yerel bir genç LoL'de 72 saat mola vermeden oynadı, Silver II'de kaldı. Arkadaşı A. Baz: "Bir maç daha" dedi.<br><b style="margin-top:6px">HAVA DURUMU</b>Sahilde fırtına. Balıkçılar dalgaların "çalışsaydın" diye fısıldadığını söylüyor.</div>
+      </div>
+    </div>
+    <div class="hint">[ devam etmek için tıkla ]</div>
+  </section>
+
+  <section id="intro" class="screen"><div class="center"><div class="t">12 AM</div><div class="n" id="introN">1. GECE</div><div class="tip" id="introTip"></div></div></section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <div id="office">
+      <div id="view">
+      <div class="bg"></div><img id="fanBlades" src="img/fan_blades.png" alt=""><img id="fanHub" src="img/fan_hub.png" alt=""><div id="wclock"><div class="face"></div><div class="hh" id="hh"></div><div class="mh" id="mh"></div><div class="cap"></div></div><div id="postit">TÜREV<br>çalış!!<br>5 gün</div><div id="dclock"><img src="img/dclock.png" alt=""><div class="disp"><i></i><span id="dcTime">12:00</span><small>AM</small></div></div><div class="shade"></div><div class="lampglow"></div><div id="bulbHalo"></div><div id="bulb"></div><div id="dcGlow"></div><div class="flk"></div>
+      <div class="doorway" id="dwL"><div class="light"></div><img class="who" data-who="pasta" src="img/pasta.png" alt=""><img class="who" data-who="sultan" src="img/sultan.png" alt=""><div class="plane"><div class="shutter"></div></div></div>
+      <div class="doorway" id="dwR"><div class="light"></div><img class="who" data-who="avukat" src="img/avukat.png" alt=""><img class="who" data-who="sahil" src="img/sahil.png" alt=""><div class="plane"><div class="shutter"></div></div></div>
+      <div class="panel" id="pL"><div class="pbtn door" id="bDoorL"></div><span class="l1">KAPI</span><div class="pbtn lamp" id="bLightL"></div><span class="l2">IŞIK</span></div>
+      <div class="panel" id="pR"><div class="pbtn door" id="bDoorR"></div><span class="l1">KAPI</span><div class="pbtn lamp" id="bLightR"></div><span class="l2">IŞIK</span></div>
+      <div id="monitor"><div class="idle" id="mIdle">LoL kapalı.<br>(şimdilik)</div><div id="mAlert" style="display:none">ARDA BAZ<br>MAÇA ÇAĞIRIYOR!<div class="mbtns"><button id="accept">KABUL ET</button><button id="decline">REDDET</button></div><div id="mtimer"></div></div></div>
+      <img id="powerFace" src="img/sultan.png" alt="">
+      </div>
+      <div class="vignette"></div>
+      <div id="edgeL" class="edge"></div><div id="edgeR" class="edge"></div>
+      <div id="dark"></div>
+      <div id="hud">
+        <div class="time" id="tTime">12 AM</div>
+        <div class="night" id="tNight">1. GECE</div>
+        <div class="power" id="tPower">ELEKTRİK: %100</div>
+        <div class="usage">KULLANIM: <span id="tUsage"></span></div>
+      </div>
+      <button id="camTab">▲ KAMERALAR</button>
+    </div>
+    <div id="tablet"><div class="screenIn"></div></div>
+    <div id="cam">
+      <div id="bezel"></div><div id="monLed"></div><div id="monPower" title="Monitörü kapat"></div><div id="camPostit">TÜREV + İNTEGRAL<br>çalış!! sınava 5 gün</div>
+      <div id="screenWrap"><div id="screen">
+        <div id="osTop"><span>▣ MIRIK-SEC CCTV v2.3 &nbsp;│&nbsp; GÜVENLİK İZLEME</span><span id="camTimeR"></span></div>
+        <div id="feedWin">
+          <div class="wtitle"><span id="camName"></span><span class="rec"><i></i>REC</span></div>
+          <div id="feedBox"><div id="feed"></div><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div></div>
+        </div>
+        <div id="side">
+          <div id="map"><svg class="plan" viewBox="0 0 348 286" width="348" height="286"><rect x="8" y="32" width="332" height="246" rx="2" class="wall"/><path d="M84 64 H142 M206 64 H264 M174 82 V112 H84 V142 M84 178 V256 H142 M296 82 V112 H264 V142 M250 178 V212 H174 V238 M286 238 V178" class="cor-o"/><path d="M84 64 H142 M206 64 H264 M174 82 V112 H84 V142 M84 178 V256 H142 M296 82 V112 H264 V142 M250 178 V212 H174 V238 M286 238 V178" class="cor-i"/><text x="104" y="250" class="door">SOL◄</text><text x="210" y="234" class="door">►SAĞ</text></svg><div class="mt">KAT PLANI — B BLOK</div><div class="you">SEN</div></div>
+        </div>
+        <div id="log"><div class="mt">OLAY KAYDI</div><div id="camNote"></div></div>
+        <div id="osBottom"><span id="camSig"></span><span id="camPow"></span><button id="camClose">[ESC] MONİTÖRDEN KALK</button></div>
+        <div id="boot"><div>MIRIK-SEC BIOS 1.0<br>VİDEO SİNYALİ ARANIYOR...<span class="cur">█</span></div></div>
+        <div class="scan"></div><div class="rollbar"></div><div class="glass"></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- SCARE -->
+  <section id="scare" class="screen"><div id="scareBg"></div><div id="scareWrap"><img id="scareImg" src="" alt=""></div><div class="flash"></div><div class="t1" id="s1"></div><div class="t2" id="s2"></div></section>
+
+  <!-- 6 AM -->
+  <section id="six" class="screen"><div class="vignette"></div><div class="center"><div class="clock" id="sixClock">5 AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">SONRAKİ GECE →</button></div></section>
+
+  <!-- GAME OVER -->
+  <section id="over" class="screen"><div class="vignette"></div><div class="center"><div class="t">OYUN BİTTİ</div><div class="why" id="overWhy"></div><div><button class="big-btn" id="bRetry">TEKRAR DENE</button> <button class="big-btn" id="bMenu1">MENÜ</button></div></div></section>
+
+  <!-- WIN -->
+  <section id="win" class="screen"><div class="vignette"></div><div class="center">
+    <h2>SINAV SABAHI</h2>
+    <p>5 geceyi atlattın. Sabah oldu, Hasan Emre sınav salonuna girdi.<br>İlk soruyu okudu, kendi kendine güldü ve fısıldadı:</p>
+    <div class="gold">"Kitapta mı? PASTAYMIŞ."</div>
+    <p>Mırık'lar yenildi. Sen kazandın. Ama 3-4-5'in avukatları hâlâ seni arıyor.</p>
+    <button class="big-btn" id="bMenu2">MENÜYE DÖN</button>
+  </div></section>
+</div>
+
+<script src="audio.js"></script>
+<script>
+// ---------- SCALE ----------
+const stage = document.getElementById('stage');
+function fit(){ const s = Math.min(innerWidth/1280, innerHeight/720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+const $ = id => document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); const mb=document.getElementById('mute'); if(mb) mb.style.display = ['splash','title','roster'].includes(id) ? '' : 'none'; if(typeof Audio5!=='undefined' && typeof musicFor==='function') try{ musicFor(id); }catch(e){} }
+
+// ---------- AUDIO (audio.js) ----------
+const sfx = Audio5.sfx;
+function ac(){ return Audio5.init(); }
+const MUSIC_SCREENS = ['splash','title','roster','over','win'];
+function musicFor(id){
+  if(MUSIC_SCREENS.includes(id)){ Audio5.stopAmbience(0.3); Audio5.playMenuMusic(); }
+  else if(id==='intro'){ Audio5.stopMusic(1.2); sfx.boom(); }
+  else if(id==='scare' || id==='six'){ Audio5.stopMusic(0.2); Audio5.stopAmbience(0.1); }
+}
+// ---------- DATA ----------
+const CHARS = {
+  pasta:  {name:'PASTA MIRIK', night:'1. GECE', img:'img/pasta.png', scare:'img/scare/pasta.png', desc:'Sol kapıdan gelir. Işığı yakınca kapıda görürsen hemen kapat. İçeri girerse: "Kitapta mı? PASTAYMIŞ."', s1:'KİTAPTA MI?', s2:'PASTAYMIŞ!!!'},
+  avukat: {name:'AVUKAT MIRIK', night:'2. GECE', img:'img/avukat.png', scare:'img/scare/avukat.png', desc:"3-4-5 Yayınları'nın avukatı. Sağ kapıdan gelir. Kapıyı kapatırsan bekler ve bu sırada elektriğini emer.", s1:'3-4-5 ADINA...', s2:'DÖRT BEŞ ALTI!!!'},
+  lol:    {name:'ARDA BAZ', night:'2. GECE', img:'img/lol.png', scare:'img/scare/lol.png', desc:'Hasan Emre\'nin LoL kankası; onu hep maça çağırıp sınava çalıştırmaz, manitalarına miyavlar. Monitörde davet çıkınca hemen REDDET!', s1:'BİR MAÇ DAHA...', s2:'MİYAAAV!!!'},
+  sahil:  {name:'SAHİL MIRIK', night:'3. GECE', img:'img/sahil.png', scare:'img/scare/sahil.png', desc:'CAM 4 sahilde, hep sırtı dönük. Kameralara bakmazsan yaklaşır, sonra sağ kapıya koşar. Koşarken kapıyı kapat.', s1:'DALGALAR DEDİ Kİ...', s2:'ÇALIŞSAYDIN!!!'},
+  sultan: {name:'SULTAN MIRIK HAN', night:'5. GECE · BOSS', img:'img/sultan.png', scare:'img/scare/sultan.png', desc:'5. gece sol koridordan gelir. Ve her gece: elektrik biterse Pulse 200 ile karanlıktan çıkar.', s1:'CİHAN PADİŞAHI GELDİ', s2:'SİLVER II!!!', boss:true}
+};
+// aggression per night: [pasta, avukat, lol, sahil, sultan]
+const AI = {1:[4,0,0,0,0], 2:[6,4,3,0,0], 3:[8,6,5,4,0], 4:[11,9,7,7,0], 5:[14,12,9,10,9]};
+const TIPS = {1:'Pasta Mırık uyandı. Sol kapıya dikkat. Işığı yak, görürsen kapat.', 2:'Avukat Mırık sağdan geliyor. Arda Baz seni yine maça çağıracak. Sınav var, REDDET!', 3:'Sahil Mırık CAM 4\'te. Kameralara hiç bakmazsan koşar.', 4:'Hepsi daha hızlı. Elektriği idareli kullan.', 5:'Sultan Mırık Han uyandı. İyi şanslar. Gerçekten.'};
+const ROOMS = {'1A':'KANTİN','1B':'KÜTÜPHANE','2A':'BATI KORİDORU','2B':'DOĞU KORİDORU','3':'ETÜT ODASI','4':'SAHİL'};
+const MAPPOS = {'1A':[20,46],'1B':[142,46],'3':[264,46],'2A':[52,142],'2B':[232,142],'4':[264,238]};
+const HOUR_SEC = 40;
+let SPEED = 1;
+
+// roster
+$('cards').innerHTML = Object.values(CHARS).map(c => `<div class="card ${c.boss?'boss':''}"><div class="pic" style="background-image:url(${c.img})"></div><b>${c.name}</b><i>${c.night}</i><p>${c.desc}</p></div>`).join('');
+
+// ---------- MENÜDE KORKUNÇ MIRIK ----------
+function scheduleScare(){
+  setTimeout(() => {
+    if($('title').classList.contains('on')){
+      const fw = $('faceWrap'), t = $('title');
+      const flash = (ms) => { fw.classList.add('snap'); t.classList.add('flash'); setTimeout(() => { fw.classList.remove('snap'); t.classList.remove('flash'); }, ms); };
+      try { sfx.neck(); } catch(e) {}
+      flash(Math.random() < .5 ? 170 : 120);
+      if(Math.random() < .45) setTimeout(() => flash(90), 260);
+    }
+    scheduleScare();
+  }, 7000 + Math.random()*7000);
+}
+scheduleScare();
+new Image().src = 'img/gece_scary.png';
+
+// ---------- SAVE ----------
+let saved = parseInt(localStorage.getItem('m5g_night')) || 1;
+function refreshMenu(){ $('bCont').textContent = `DEVAM ET — ${saved}. GECE`; }
+refreshMenu();
+
+// ---------- STATE ----------
+let S = null, raf = null, last = 0;
+function newState(n){
+  const lv = AI[n];
+  return {
+    night:n, t:0, power:100, doorL:false, doorR:false, lightL:false, lightR:false, camOpen:false, cam:'1A', over:false, dark:false, darkT:0,
+    pasta:{pos:'1A', path:['1A','1B','2A','L'], lv:lv[0], tick:0, off:0},
+    avukat:{pos:'3', path:['3','2B','R'], lv:lv[1], tick:0, off:1.7, wait:0},
+    sultan:{pos:'4', path:['4','2A','L'], lv:lv[4], tick:0, off:3.1},
+    sahil:{stage:0, lv:lv[3], tick:0, off:2.3, run:-1, hits:0},
+    lol:{lv:lv[2], tick:0, popup:false, left:0},
+    camsUsed:0
+  };
+}
+
+// ---------- FLOW ----------
+function startNight(n){
+  S = newState(n); ac();
+  $('introN').textContent = `${n}. GECE`; $('introTip').textContent = TIPS[n];
+  show('intro');
+  setTimeout(() => { show('game'); resetOffice(); Audio5.startAmbience(); last = performance.now(); raf = requestAnimationFrame(loop); }, 3200);
+}
+function resetOffice(){
+  setLamp(1);
+  $('game').classList.remove('dark');
+  look.zoom = false; look.x = PAN_MAX/2; look.keys = 0; applyLook(); camBusy = false; $('view').style.transition='none'; $('cam').classList.remove('booting','poweron','poweroff');
+  ['dwL','dwR'].forEach(d => $(d).className = 'doorway');
+  ['bDoorL','bDoorR','bLightL','bLightR'].forEach(b => $(b).classList.remove('on'));
+  $('cam').classList.remove('on'); $('dark').style.opacity = 0; $('powerFace').style.opacity = 0;
+  $('office').style.filter = ''; setMonitor(false); render();
+}
+function endLoop(){ cancelAnimationFrame(raf); raf = null; Audio5.stopAmbience(0.2); }
+
+function jumpscare(who){
+  if(S.over) return; S.over = true; endLoop();
+  const c = CHARS[who];
+  const sc = c.scare || c.img; $('scareImg').src = sc; $('scareImg').classList.toggle('cut', !c.scare); $('scareBg').style.backgroundImage = c.scare ? `url(${c.scare})` : 'none';
+  const w = $('scareWrap'); w.style.animation = 'none'; void w.offsetWidth; w.style.animation = ''; $('s1').textContent = c.s1; $('s2').textContent = c.s2;
+  show('scare'); sfx.scream(); if(who==='lol') setTimeout(()=>sfx.meow(true), 250);
+  setTimeout(() => { $('overWhy').textContent = `${c.name} seni ${hourLabel()} sularında, ${S.night}. gecede yakaladı.`; show('over'); }, 2200);
+}
+function winNight(){
+  S.over = true; endLoop(); show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent=''; $('bNext').style.visibility='hidden';
+  setTimeout(() => { $('sixClock').textContent = '6 AM'; sfx.chime(); }, 1500);
+  setTimeout(() => {
+    if(S.night >= 5){ saved = 1; localStorage.setItem('m5g_night', 1); refreshMenu(); show('win'); return; }
+    saved = S.night + 1; localStorage.setItem('m5g_night', saved); refreshMenu();
+    $('sixMsg').textContent = 'SABAH OLDU. Hasan Emre yine çalışmadı.'; $('bNext').style.visibility='visible';
+  }, 3200);
+}
+function hourLabel(){ const h = Math.floor(S.t / HOUR_SEC); return (h===0?12:h) + ' AM'; }
+
+// ---------- KAFA ÇEVİRME (panorama) ----------
+const VIEW_SCALE = 720/848, VIEW_W = 2000*VIEW_SCALE, VIEW_H = 848*VIEW_SCALE;
+const PAN_MAX = VIEW_W - 1280, PAN_Y = -(VIEW_H - 720) / 2;
+const look = { x: PAN_MAX/2, vel: 0, mouse: null, keys: 0, drag: null };
+function stageX(clientX){ const r = stage.getBoundingClientRect(); return (clientX - r.left) / r.width * 1280; }
+addEventListener('mousemove', e => { look.mouse = stageX(e.clientX); });
+document.addEventListener('mouseleave', () => { look.mouse = null; });
+$('office').addEventListener('touchstart', e => { look.drag = stageX(e.touches[0].clientX); look.mouse = null; }, {passive:true});
+$('office').addEventListener('touchmove', e => { const x = stageX(e.touches[0].clientX); if(look.drag!=null){ look.x = Math.max(0, Math.min(PAN_MAX, look.x - (x - look.drag)*1.1)); look.drag = x; applyLook(); } }, {passive:true});
+$('office').addEventListener('touchend', () => { look.drag = null; });
+function applyLook(){
+  if(look.zoom) return;
+  $('view').style.transform = `translate(${-look.x}px, ${PAN_Y}px) scale(${VIEW_SCALE})`;
+  $('edgeL').style.opacity = look.x > 5 ? 1 : 0; $('edgeR').style.opacity = look.x < PAN_MAX-5 ? 1 : 0;
+}
+function updateLook(rdt){
+  let v = 0;
+  if(look.mouse != null && !S.camOpen){
+    const L = 1280*0.28, R = 1280*0.72;
+    if(look.mouse < L) v = -Math.pow(1 - look.mouse/L, 1.3);
+    else if(look.mouse > R) v = Math.pow((look.mouse - R)/(1280 - R), 1.3);
+  }
+  if(look.keys) v = look.keys;
+  if(v){ look.x = Math.max(0, Math.min(PAN_MAX, look.x + v * 820 * rdt)); applyLook(); }
+}
+
+// ---------- LOOP ----------
+function loop(now){
+  const rdt = Math.min(0.1, (now - last) / 1000), dt = rdt * SPEED; last = now;
+  if(S.over) return;
+  updateLook(rdt);
+  S.t += dt;
+  if(S.t >= HOUR_SEC*6){ winNight(); return; }
+  // power
+  if(!S.dark){
+    const use = usage();
+    S.power -= dt * 0.082 * Math.pow(use, 1.32) * (1 + (S.night-1)*0.035) + (S.avukat.pos==="R" && S.doorR ? dt*0.12 : 0);
+    if(S.power <= 0){ powerOut(); }
+  } else {
+    S.darkT -= dt;
+    if(S.darkT < 3){ const on = Math.sin(now/90) > 0; $('powerFace').style.opacity = on ? 1 : .25; $('dark').style.opacity = on ? .4 : .85; }
+    if(S.darkT <= 0){ jumpscare('sultan'); return; }
+  }
+  if(!S.dark) ai(dt);
+  render();
+  if(S.camOpen) drawStatic();
+  raf = requestAnimationFrame(loop);
+}
+function usage(){ return 1 + S.doorL + S.doorR + (S.lightL||S.lightR ? 1 : 0) + (S.camOpen ? 1 : 0); }
+function roll(lv){ return lv > 0 && (Math.random()*20 + 1) <= lv; }
+
+function ai(dt){
+  // door walkers
+  for(const k of ['pasta','avukat','sultan']){
+    const c = S[k]; if(!c.lv) continue;
+    c.tick += dt; if(c.tick < 4.6 + c.off*0.3) continue; c.tick = 0;
+    if(!roll(c.lv)) continue;
+    const i = c.path.indexOf(c.pos), atDoor = (c.pos==='L'||c.pos==='R');
+    if(atDoor){
+      const closed = c.pos==='L' ? S.doorL : S.doorR;
+      if(closed){ c.pos = c.path[0]; sfx.step(c.path[c.path.length-1]==='L'?-1:1); if(k==="avukat"){ S.power -= 1; } }
+      else { jumpscare(k); return; }
+    } else {
+      c.pos = c.path[i+1];
+      if(c.pos==='L'||c.pos==='R') sfx.step(c.pos==='L'?-1:1);
+      if(S.camOpen) camGlitch();
+    }
+  }
+  // sahil (moves only when cameras are down)
+  const sh = S.sahil;
+  if(sh.lv){
+    if(sh.run >= 0){
+      sh.run -= dt;
+      if(sh.run < 0){
+        if(S.doorR){ sfx.bang(); S.power -= 2 + sh.hits*2; sh.hits++; sh.stage = 0; }
+        else { jumpscare('sahil'); return; }
+      }
+    } else {
+      sh.tick += dt;
+      if(sh.tick >= 5.2){ sh.tick = 0; if(!S.camOpen && roll(sh.lv)){ sh.stage++; if(sh.stage>=3){ sh.run = (S.camOpen && S.cam==='2B') ? 2.2 : 3.4; sfx.step(1); } } }
+    }
+  }
+  // lol
+  const l = S.lol;
+  if(l.lv){
+    if(l.popup){ l.left -= dt; const sec = Math.ceil(l.left); if(sec !== l.lastSec){ l.lastSec = sec; sfx.tick(); } $('mtimer').textContent = `otomatik kabul: ${sec} sn`; if(l.left <= 0){ jumpscare('lol'); return; } }
+    else { l.tick += dt; if(l.tick >= 6){ l.tick = 0; if(Math.random()*40 < l.lv){ l.popup = true; l.left = 9 - S.night*0.6; setMonitor(true); sfx.alarm(); setTimeout(()=>sfx.meow(), 700); } } }
+  }
+}
+function setMonitor(on){
+  $('mIdle').style.display = on ? 'none' : ''; $('mAlert').style.display = on ? '' : 'none';
+  $('monitor').classList.toggle('alert', on);
+  if(S && !S.lol.lv) $('mIdle').innerHTML = 'LoL kapalı.<br>(şimdilik)'; else if(S) $('mIdle').innerHTML = 'LoL açık...<br>bekliyor.';
+}
+function powerOut(){
+  S.power = 0; S.dark = true; S.darkT = 5 + Math.random()*10;
+  S.doorL = S.doorR = S.lightL = S.lightR = false; closeCam(true);
+  const lx = look.x; resetOffice(); look.x = lx; applyLook(); $('game').classList.add('dark'); $('dark').style.opacity = .85; sfx.powerdown(); setTimeout(()=>{ if(S && S.dark && !S.over) sfx.darkTune(); }, 1800);
+}
+
+// ---------- RENDER ----------
+function render(){
+  if(!S) return;
+  $('tTime').textContent = hourLabel();
+  { const hrs = S.t / HOUR_SEC, h = Math.floor(hrs), mf = hrs - h;
+    $('hh').style.transform = `rotate(${((h % 12) + mf) * 30}deg)`; $('mh').style.transform = `rotate(${mf * 360}deg)`;
+    const mm = Math.floor(mf * 60); $('dcTime').textContent = `${h===0?12:h}:${String(mm).padStart(2,'0')}`; }
+  if(S.camOpen){
+    const h = Math.floor(S.t / HOUR_SEC), m = Math.floor((S.t % HOUR_SEC) / HOUR_SEC * 60), sec = Math.floor(((S.t % HOUR_SEC) / HOUR_SEC * 3600) % 60);
+    const p2 = n => String(n).padStart(2,'0'), clock = `${p2(h)}:${p2(m)}:${p2(sec)}`;
+    $('camTimeR').textContent = `${S.night}. GECE  │  0${5+S.night}.11.1998  ${clock}`;
+    $('stamp').textContent = `CAM-${S.cam}  ${clock}`;
+    if(Math.random() < .05){ const q = 2 + Math.floor(Math.random()*3); $('camSig').textContent = 'SİNYAL ' + '▮'.repeat(q) + '▯'.repeat(4-q); }
+    $('camPow').textContent = `ELEKTRİK %${Math.max(0, Math.ceil(S.power))}  KULLANIM ${'▮'.repeat(usage())}`;
+  }
+  $('tNight').textContent = S.night + '. GECE';
+  $('tPower').textContent = 'ELEKTRİK: %' + Math.max(0, Math.ceil(S.power));
+  const u = usage(); $('tUsage').innerHTML = Array.from({length:Math.min(u,5)},(_,i)=>`<i style="background:${i<2?'#39d353':i<3?'#e9c46a':'#ff4d4d'}"></i>`).join('');
+  $('dwL').classList.toggle('lit', S.lightL); $('dwR').classList.toggle('lit', S.lightR);
+  $('dwL').classList.toggle('closed', S.doorL); $('dwR').classList.toggle('closed', S.doorR);
+  document.querySelectorAll('#dwL .who').forEach(im => im.classList.toggle('here', S[im.dataset.who].pos==='L'));
+  document.querySelectorAll('#dwR .who').forEach(im => { const w = im.dataset.who; im.classList.toggle('here', w==='avukat' ? S.avukat.pos==='R' : S.sahil.run>=0 && S.sahil.run<1.2); });
+  $('bDoorL').classList.toggle('on', S.doorL); $('bDoorR').classList.toggle('on', S.doorR);
+  $('bLightL').classList.toggle('on', S.lightL); $('bLightR').classList.toggle('on', S.lightR);
+  if(S.camOpen) renderCam();
+}
+let lastFeed = '';
+// odaya göre karakter yerleşimi: [left, bottom, height]
+const SPOT = {
+  '1A': {pasta:[600,150,400]},
+  '1B': {pasta:[330,250,330]},
+  '2A': {pasta:[600,300,300], sultan:[520,250,380]},
+  '2B': {avukat:[760,230,350], sahilRun:[560,40,620]},
+  '3':  {avukat:[800,330,280]},
+  '4':  {sultan:[620,250,360], sahil:[[300,330,170],[250,230,270],[180,100,420]]}
+};
+function renderCam(){
+  const here = [];
+  const sp = SPOT[S.cam] || {};
+  const add = (k, [x, b, h], extra='') => here.push(`<img class="cimg" src="img/cam/${k}.png" style="left:${x}px;bottom:${b}px;height:${h}px;${extra}">`);
+  for(const k of ['pasta','avukat','sultan']){ if(S[k].lv && S[k].pos===S.cam && sp[k]) add(k, sp[k]); }
+  if(S.cam==='4' && S.sahil.lv && S.sahil.run<0 && S.sahil.stage<3) add('sahil', sp.sahil[S.sahil.stage]);
+  if(S.cam==='2B' && S.sahil.run>=0) add('sahil', sp.sahilRun, 'filter:blur(3px);');
+  const notes = {
+    '1A': S.pasta.pos==='1A' ? 'Kantinde pasta kokusu var.' : 'Kantin boş. Pasta tabağı da yok...',
+    '1B': S.pasta.pos==='1B' ? 'Kütüphanede biri "kitapta mı" diye fısıldıyor.' : 'Kütüphane. Kimse kitap okumuyor.',
+    '2A': (S.pasta.pos==='2A'||S.sultan.pos==='2A') ? 'Batı koridorunda biri var. Sol kapıya yakın.' : 'Batı koridoru. Sessiz.',
+    '2B': S.sahil.run>=0 ? 'SAHİL MIRIK KOŞUYOR! SAĞ KAPIYI KAPAT!' : S.avukat.pos==='2B' ? 'Doğu koridorunda takım elbiseli biri.' : 'Doğu koridoru. Sessiz.',
+    '3':  S.avukat.lv && S.avukat.pos==='3' ? 'Etüt odasında avukat dosyalarını hazırlıyor.' : 'Etüt odası. Boş.',
+    '4':  !S.sahil.lv ? 'Sahil. Dalgalar. Kimse yok... henüz.' : S.sahil.run>=0 ? 'Sahil boş. O nerede?!' : ['Sahil Mırık denize bakıyor.','Sahil Mırık biraz yaklaştı.','Sahil Mırık çok yakın. Sırtı hâlâ dönük.'][S.sahil.stage]
+  };
+  const key = S.cam + here.join('');
+  if(key !== lastFeed){
+    lastFeed = key;
+    $('feed').innerHTML = `<div class="room" style="background-image:url(img/rooms/${S.cam}.png)"></div>` + here.join('');
+  }
+  $('camName').textContent = `CAM ${S.cam} — ${ROOMS[S.cam]}`;
+  $('camNote').textContent = notes[S.cam];
+  $('camNote').style.color = S.sahil.run>=0 && S.cam==='2B' ? '#ff5a5a' : '#b5c7b5';
+}
+// map buttons
+for(const [k,[x,y]] of Object.entries(MAPPOS)){
+  const b = document.createElement('button'); b.textContent = k; b.style.left = x+'px'; b.style.top = y+'px'; b.dataset.cam = k;
+  b.onclick = () => { if(camBusy) return; S.cam = k; sfx.blip(); camGlitch(); document.querySelectorAll('#map button').forEach(x => x.classList.toggle('sel', x.dataset.cam===k)); render(); };
+  $('map').appendChild(b);
+}
+const sctx = $('static').getContext('2d'); const sImg = sctx.createImageData(320,180);
+function drawStatic(){ const d=sImg.data; for(let i=0;i<d.length;i+=4){ const v=Math.random()*255|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; } sctx.putImageData(sImg,0,0); }
+function camGlitch(){ $('static').style.opacity = .85; setTimeout(()=>$('static').style.opacity = .1, 220); }
+
+// ---------- CONTROLS ----------
+function toggle(what){
+  if(!S || S.over || S.dark) return;
+  if(what==='doorL'||what==='doorR'){ S[what] = !S[what]; sfx.door(what==='doorL'?-1:1, S[what]); }
+  if(what==='lightL'){ S.lightL = !S.lightL; S.lightR = false; sfx.light(S.lightL,-1); if(S.lightL && (S.pasta.pos==='L' || S.sultan.pos==='L')) sfx.sting(); }
+  if(what==='lightR'){ S.lightR = !S.lightR; S.lightL = false; sfx.light(S.lightR,1); if(S.lightR && (S.avukat.pos==='R' || (S.sahil.run>=0 && S.sahil.run<1.2))) sfx.sting(); }
+  render();
+}
+let camBusy = false;
+const MON = {x:1000, y:482}, ZOOM = 3.15;
+function zoomTransform(){ return `translate(${640 - MON.x*ZOOM}px, ${360 - MON.y*ZOOM}px) scale(${ZOOM})`; }
+function openCam(){
+  if(!S||S.over||S.dark||camBusy||S.camOpen) return;
+  camBusy = true; S.camOpen = true; S.lightL = S.lightR = false; sfx.light(false); sfx.camOpen();
+  const v = $('view'); look.zoom = true;
+  v.style.transition = 'transform .46s cubic-bezier(.45,0,.55,1)'; v.style.transform = zoomTransform();
+  setTimeout(() => {
+    if(!S || S.over || !S.camOpen){ camBusy = false; return; }
+    const c = $('cam'); c.classList.remove('leave'); c.classList.add('on','enter','booting'); lastFeed='';
+    document.querySelectorAll('#map button').forEach(x => x.classList.toggle('sel', x.dataset.cam===S.cam)); render();
+    sfx.blip();
+    setTimeout(() => { c.classList.remove('enter'); v.style.transition = 'none'; look.zoom = false; applyLook(); }, 260);
+    setTimeout(() => { c.classList.remove('booting'); $('static').style.opacity = .12; camBusy = false; }, 620);
+  }, 300);
+}
+function closeCam(silent){
+  if(!S) return;
+  const c = $('cam'), v = $('view');
+  if(silent){ S.camOpen = false; camBusy = false; c.classList.remove('on','booting','enter','leave'); look.zoom = false; v.style.transition='none'; applyLook(); render(); return; }
+  if(camBusy || !S.camOpen) return;
+  camBusy = true; S.camOpen = false; sfx.camClose();
+  look.zoom = true; v.style.transition = 'none'; v.style.transform = zoomTransform(); void v.offsetWidth;
+  c.classList.remove('booting','enter'); c.classList.add('leave');
+  setTimeout(() => {
+    c.classList.remove('on','leave');
+    v.style.transition = 'transform .42s cubic-bezier(.45,0,.55,1)'; look.zoom = false; applyLook();
+    setTimeout(() => { v.style.transition = 'none'; camBusy = false; }, 430);
+    render();
+  }, 190);
+}
+$('bDoorL').onclick = () => toggle('doorL'); $('bDoorR').onclick = () => toggle('doorR');
+$('bLightL').onclick = () => toggle('lightL'); $('bLightR').onclick = () => toggle('lightR');
+$('camTab').onclick = openCam; $('camClose').onclick = () => closeCam(); $('monPower').onclick = () => { sfx.click(); closeCam(); };
+$('decline').onclick = () => { if(!S||S.over) return; S.lol.popup = false; S.lol.tick = 0; setMonitor(false); sfx.blip(); };
+$('accept').onclick = () => { if(!S||S.over) return; jumpscare('lol'); };
+addEventListener('keydown', e => {
+  if(!S || S.over || !$('game').classList.contains('on')) return;
+  const k = e.key.toLowerCase();
+  if(k==='q') toggle('doorL'); if(k==='e') toggle('doorR'); if(k==='a') toggle('lightL'); if(k==='d') toggle('lightR');
+  if(k===' '){ e.preventDefault(); if(e.repeat) return; S.camOpen ? closeCam() : openCam(); }
+  if(e.key==='Escape' && S.camOpen) closeCam();
+  if(e.key==='ArrowLeft'){ look.keys = -1; e.preventDefault(); } if(e.key==='ArrowRight'){ look.keys = 1; e.preventDefault(); }
+});
+addEventListener('keyup', e => { if(e.key==='ArrowLeft' && look.keys<0) look.keys = 0; if(e.key==='ArrowRight' && look.keys>0) look.keys = 0; });
+
+// menu
+$('bNew').onclick = () => { saved = 1; localStorage.setItem('m5g_night', 1); refreshMenu(); show('paper'); sfx.paper(); };
+$('paper').onclick = () => { if(paperLock) return; paperLock = true; glitchBurst(() => { paperLock = false; startNight(1); }); };
+let paperLock = false;
+$('bCont').onclick = () => startNight(saved);
+$('bRoster').onclick = () => { ac(); show('roster'); };
+$('bBack').onclick = () => show('title');
+$('bRetry').onclick = () => startNight(S.night);
+$('bNext').onclick = () => startNight(saved);
+$('bMenu1').onclick = $('bMenu2').onclick = () => { refreshMenu(); show('title'); };
+
+let assetsReady = false;
+$('splash').onclick = () => { if(!assetsReady) return; ac(); Audio5.playMenuMusic(); glitchBurst(() => show('title')); };
+(function preload(){
+  const imgs = ['img/rooms/office.png','img/rooms/1A.png','img/rooms/1B.png','img/rooms/2A.png','img/rooms/2B.png','img/rooms/3.png','img/rooms/4.png',
+    'img/door.png','img/panel.png','img/monitor.png','img/paper.png','img/news.png','img/dclock.png','img/fan_blades.png','img/fan_hub.png',
+    'img/gece.png','img/gece_scary.png','img/pasta.png','img/avukat.png','img/lol.png','img/sahil.png','img/sultan.png',
+    'img/cam/pasta.png','img/cam/avukat.png','img/cam/lol.png','img/cam/sahil.png','img/cam/sultan.png',
+    'img/scare/pasta.png','img/scare/avukat.png','img/scare/lol.png','img/scare/sahil.png','img/scare/sultan.png'];
+  const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 1;
+  const tick = () => { done++; $('splashTxt').textContent = `YÜKLENİYOR... %${Math.round(done/total*100)}`; if(done >= total) ready(); };
+  const ready = () => { if(assetsReady) return; assetsReady = true; $('splashTxt').textContent = '[ BAŞLAMAK İÇİN TIKLA ]'; };
+  imgs.forEach(src => { const i = new Image(); keep.push(i); i.src = src; (i.decode ? i.decode() : Promise.resolve()).catch(()=>{}).then(tick); });
+  Audio5.loadSamples().catch(()=>{}).then(tick);
+  if(document.fonts) document.fonts.load("20px VT323");
+  setTimeout(ready, 15000);
+})();
+// müziği açılışta başlatmayı dene; tarayıcı engellerse ilk dokunuşta başlar
+try { Audio5.playMenuMusic(); } catch(e) {}
+const unlock = () => { ac(); Audio5.playMenuMusic(); removeEventListener('pointerdown', unlock, true); removeEventListener('keydown', unlock, true); removeEventListener('touchstart', unlock, true); };
+addEventListener('pointerdown', unlock, true); addEventListener('keydown', unlock, true); addEventListener('touchstart', unlock, true);
+// oda görsellerini önceden yükle
+['office','1A','1B','2A','2B','3','4'].forEach(r => { const i = new Image(); i.src = `img/rooms/${r}.png`; });
+['pasta','avukat','lol','sultan','sahil'].forEach(k => { const i = new Image(); i.src = `img/scare/${k}.png`; });
+function muteLabel(){ $('mute').textContent = Audio5.muted ? '🔇 SES KAPALI' : '🔊 SES'; }
+$('mute').onclick = e => { e.stopPropagation(); ac(); Audio5.setMuted(!Audio5.muted); muteLabel(); };
+muteLabel();
+// injected badges/banners outside the game get removed
+new MutationObserver(() => { for(const n of [...document.body.children]) if(n.id!=='stage' && n.tagName!=='SCRIPT') n.remove(); }).observe(document.body, {childList:true});
+// ---------- MASA LAMBASI TİTREMESİ ----------
+function setLamp(v){ $('game').style.setProperty('--lamp', v); }
+function lampFlicker(){
+  setTimeout(() => {
+    if(S && !S.over && !S.dark && $('game').classList.contains('on')){
+      const seq = Math.random() < .5 ? [[.25,60],[1,90],[.4,50],[1,0]] : [[.55,40],[1,120],[.2,80],[.8,60],[1,0]];
+      let t = 0; try { sfx.flicker(); } catch(e) {}
+      seq.forEach(([v,d]) => { setTimeout(() => { if(S && !S.dark) setLamp(v); }, t); t += d; });
+    }
+    lampFlicker();
+  }, 3500 + Math.random()*9000);
+}
+lampFlicker();
+
+// ---------- MENÜ: hover sesi + tıklayınca parazit ----------
+const gctx = $('glitch').getContext('2d'), gimg = gctx.createImageData(320,180);
+function glitchBurst(after, ms = 260){
+  const g = $('glitch'); g.classList.add('on'); try { sfx.static(); } catch(e) {}
+  const end = performance.now() + ms;
+  (function frame(){
+    const d = gimg.data; for(let i=0;i<d.length;i+=4){ const v = Math.random()*255|0; d[i]=d[i+1]=d[i+2]=v; d[i+3]=235; }
+    gctx.putImageData(gimg,0,0);
+    if(performance.now() < end) requestAnimationFrame(frame); else { g.classList.remove('on'); if(after) after(); }
+  })();
+}
+document.querySelectorAll('#menu button, .back, .big-btn').forEach(b => {
+  b.addEventListener('mouseenter', () => { try { ac(); sfx.hover(); } catch(e) {} });
+  const orig = b.onclick; if(!orig) return;
+  b.onclick = (e) => { if(b.dataset.busy) return; b.dataset.busy = 1; glitchBurst(() => { delete b.dataset.busy; orig.call(b, e); }); };
+});
+
+// debug hook for automated tests
+window.__m5g = { get S(){ return S; }, startNight, jumpscare, setTime(t){ S.t = t; }, setSpeed(x){ SPEED = x; } };
+</script>
+</body>
+</html>
